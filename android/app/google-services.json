@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "892657712020",
+    "firebase_url": "https://e-commerce-furniture.firebaseio.com",
+    "project_id": "e-commerce-furniture",
+    "storage_bucket": "e-commerce-furniture.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:892657712020:android:91e7fccff1409a1f6dad81",
+        "android_client_info": {
+          "package_name": "com.example.e_commerce"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "892657712020-eqcleilankmspruvtlkp2rdpgta0vt95.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkNGfkbAkt4sc6zpho_2qt9mCh26ezJYs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "892657712020-eqcleilankmspruvtlkp2rdpgta0vt95.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "892657712020-o2f49knuc18j9in6da66cto5m93h05rk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.jaishiva.eCommerce"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
