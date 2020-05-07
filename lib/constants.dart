@@ -22,6 +22,8 @@ const productTextStyle = TextStyle(
   fontSize: 22,
   
 );
+const url = 'https://firebasestorage.googleapis.com/v0/b/';
+const api = '?alt=media&token=229bb9d2-be16-43d7-966f-473241fa22b7';
 
 List cart = [];
 
