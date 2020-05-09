@@ -19,7 +19,6 @@ class _MyAppState extends State<MyApp> {
   final Firestore _firestore = Firestore.instance;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getItemsData();
   }

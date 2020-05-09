@@ -28,13 +28,12 @@ class _FrontpageState extends State<Frontpage> {
     print('build');
     SizeConfig().init(context);
     Data().init();
-    provider = Provider.of<Data>(context,listen: false);
-    spinnerProvider = Provider.of<SpinnerProvider>(context,listen: false);
+    provider = Provider.of<Data>(context, listen: false);
+    spinnerProvider = Provider.of<SpinnerProvider>(context, listen: false);
     return Consumer<SpinnerProvider>(
-      builder: (context, spin, child) => 
-        ModalProgressHUD(
-          inAsyncCall: spin.showSpinner,
-          child: Scaffold(
+      builder: (context, spin, child) => ModalProgressHUD(
+        inAsyncCall: spin.showSpinner,
+        child: Scaffold(
           appBar: AppBar(
             elevation: 0,
             backgroundColor: backgroundColor,
@@ -54,86 +53,11 @@ class _FrontpageState extends State<Frontpage> {
               )
             ],
           ),
-          body: Padding(
-            padding: EdgeInsets.all(15.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Let's find\nyour favorite Furniture",
-                  style: mainTextStyle,
-                ),
-                SizedBox(
-                  height: SizeConfig.blockSizeVertical * 2,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Consumer<Data>(
-                      builder: (_, data, __) => customFlatButton(
-                        icon: FontAwesomeIcons.chair,
-                        active: data.chair,
-                        onPressed: () async{
-                          spinnerProvider.toggleSpinner();
-                          chairListData??= await _firestore.collection('chairs').getDocuments();
-                          spinnerProvider.toggleSpinner();
-                          data.setButtons(
-                              true, false, false, false, chairListData);
-                        },
-                        text: 'Chair',
-                      ),
-                    ),
-                    Consumer<Data>(
-                      builder: (_, data, __) => customFlatButton(
-                        icon: FontAwesomeIcons.table,
-                        active: data.table,
-                        onPressed: () async{
-                          spinnerProvider.toggleSpinner();
-                          tableListData??= await _firestore.collection('tables').getDocuments();
-                          spinnerProvider.toggleSpinner();
-                          data.setButtons(
-                              false, true, false, false, tableListData);
-                        },
-                        text: 'Table',
-                      ),
-                    ),
-                    Consumer<Data>(
-                      builder: (_, data, __) => customFlatButton(
-                        icon: FontAwesomeIcons.lightbulb,
-                        active: data.lamp,
-                        onPressed: () async{
-                          spinnerProvider.toggleSpinner();
-                          chairListData??= await _firestore.collection('chairs').getDocuments();
-                          spinnerProvider.toggleSpinner();
-                          data.setButtons(
-                              false, false, true, false, chairListData);
-                        },
-                        text: 'Lamp',
-                      ),
-                    ),
-                    Consumer<Data>(
-                      builder: (_, data, __) => customFlatButton(
-                        icon: FontAwesomeIcons.bed,
-                        active: data.bed,
-                        onPressed: () async{
-                          spinnerProvider.toggleSpinner();
-                          tableListData??= await _firestore.collection('tables').getDocuments();
-                          spinnerProvider.toggleSpinner();
-                          data.setButtons(
-                              false, false, false, true, tableListData);
-                        },
-                        text: 'Bed',
-                      ),
-                    )
-                  ],
-                ),
-                Consumer<SpinnerProvider>(builder: (_,spin,__) =>
-                Consumer<Data>(builder: (_,data,__) =>  Center(child: ProductPage(category: data.category)))
-                )
-              ],
-            ),
-          ),
+          body: selectedIndex == 0
+              ? ProductView(
+                  spinnerProvider: spinnerProvider, firestore: _firestore)
+              : selectedIndex == 1 ? FavoriteView(spinnerProvider: spinnerProvider,
+               firestore: _firestore) : CartView(spinnerProvider: spinnerProvider, firestore: _firestore),
           bottomNavigationBar: BottomNavigationBar(
               iconSize: SizeConfig.blockSizeHorizontal * 7,
               backgroundColor: backgroundColor,
@@ -155,22 +79,144 @@ class _FrontpageState extends State<Frontpage> {
                 size: SizeConfig.blockSizeHorizontal * 8,
               ),
               onTap: (newIndex) {
-//            setState(() {
-//              selectedIndex = newIndex;
-//            });
-//            if (selectedIndex == 2) {
-//              setState(() {
-//                selectedIndex = 0;
-//              });
-//              Navigator.push(context, MaterialPageRoute(builder: (context) {
-//                return ItemPage(
-//                  item: cart,
-//                );
-//              }));
-//            }
+                setState(() {
+                  selectedIndex = newIndex;
+                });
               }),
-      ),
         ),
+      ),
     );
+  }
+}
+
+class ProductView extends StatelessWidget {
+  const ProductView({
+    Key key,
+    @required this.spinnerProvider,
+    @required Firestore firestore,
+  })  : _firestore = firestore,
+        super(key: key);
+
+  final SpinnerProvider spinnerProvider;
+  final Firestore _firestore;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(15.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Let's find\nyour favorite Furniture",
+            style: mainTextStyle,
+          ),
+          SizedBox(
+            height: SizeConfig.blockSizeVertical * 2,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Consumer<Data>(
+                builder: (_, data, __) => customFlatButton(
+                  icon: FontAwesomeIcons.chair,
+                  active: data.chair,
+                  onPressed: () async {
+                    spinnerProvider.toggleSpinner();
+                    chairListData ??=
+                        await _firestore.collection('chairs').getDocuments();
+                    spinnerProvider.toggleSpinner();
+                    data.setButtons(true, false, false, false, chairListData);
+                  },
+                  text: 'Chair',
+                ),
+              ),
+              Consumer<Data>(
+                builder: (_, data, __) => customFlatButton(
+                  icon: FontAwesomeIcons.table,
+                  active: data.table,
+                  onPressed: () async {
+                    spinnerProvider.toggleSpinner();
+                    tableListData ??=
+                        await _firestore.collection('tables').getDocuments();
+                    spinnerProvider.toggleSpinner();
+                    data.setButtons(false, true, false, false, tableListData);
+                  },
+                  text: 'Table',
+                ),
+              ),
+              Consumer<Data>(
+                builder: (_, data, __) => customFlatButton(
+                  icon: FontAwesomeIcons.lightbulb,
+                  active: data.lamp,
+                  onPressed: () async {
+                    spinnerProvider.toggleSpinner();
+                    chairListData ??=
+                        await _firestore.collection('chairs').getDocuments();
+                    spinnerProvider.toggleSpinner();
+                    data.setButtons(false, false, true, false, chairListData);
+                  },
+                  text: 'Lamp',
+                ),
+              ),
+              Consumer<Data>(
+                builder: (_, data, __) => customFlatButton(
+                  icon: FontAwesomeIcons.bed,
+                  active: data.bed,
+                  onPressed: () async {
+                    spinnerProvider.toggleSpinner();
+                    tableListData ??=
+                        await _firestore.collection('tables').getDocuments();
+                    spinnerProvider.toggleSpinner();
+                    data.setButtons(false, false, false, true, tableListData);
+                  },
+                  text: 'Bed',
+                ),
+              )
+            ],
+          ),
+          Consumer<SpinnerProvider>(
+              builder: (_, spin, __) => Consumer<Data>(
+                  builder: (_, data, __) =>
+                      Center(child: ProductPage(category: data.category))))
+        ],
+      ),
+    );
+  }
+}
+
+class FavoriteView extends StatelessWidget {
+  const FavoriteView({
+    Key key,
+    @required this.spinnerProvider,
+    @required Firestore firestore,
+  })  : _firestore = firestore,
+        super(key: key);
+
+  final SpinnerProvider spinnerProvider;
+  final Firestore _firestore;
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+class CartView extends StatelessWidget {
+    const CartView({
+    Key key,
+    @required this.spinnerProvider,
+    @required Firestore firestore,
+  })  : _firestore = firestore,
+        super(key: key);
+
+  final SpinnerProvider spinnerProvider;
+  final Firestore _firestore;
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }

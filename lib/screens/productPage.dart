@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -45,47 +44,57 @@ class ProductPage extends StatelessWidget {
                 maxHeight: SizeConfig.safeBlockVertical * 42,
                 maxWidth: SizeConfig.safeBlockHorizontal * 55),
             decoration: BoxDecoration(
-                color: Colors.white30, borderRadius: BorderRadius.circular(20)),
+                color: backgroundColor, 
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [BoxShadow(
+                  color: Colors.white,
+                  blurRadius: 5
+                )]
+                ),
             child: PageView.builder(
               itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (context) {
-                    return ItemPage(
-                      item: category.documents[index].data,
-                    );
-                  })),
-                  child: Padding(
-                    padding: const EdgeInsets.all(14.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('⭐️${category.documents[index].data['0']['rating']}'),
-                            Icon(FontAwesomeIcons.heart)
-                          ],
+                return Padding(
+                  padding: const EdgeInsets.all(14.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                              '⭐️${category.documents[index].data['0']['rating']}'),
+                          Icon(FontAwesomeIcons.heart)
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return ItemPage(
+                            item: category.documents[index].data,
+                          );
+                        })),
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Hero(
+                              tag: '1',
+                              child: Image.network(
+                                "${category.documents[index].data['0']['image']}",
+                                scale: SizeConfig.safeBlockHorizontal / 3,
+                              )),
                         ),
-                        Hero(
-                            tag: '1',
-                            child: Image.network(
-                              "${category.documents[index].data['0']['image']}",
-                              scale: SizeConfig.safeBlockHorizontal / 3,
-                            )),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${category.documents[index].data['0']['name']}\n\$ ${category.documents[index].data['0']['price']}',
-                              style: TextStyle(
-                                fontSize: SizeConfig.blockSizeHorizontal * 5,
-                              ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${category.documents[index].data['0']['name']}\n\$ ${category.documents[index].data['0']['price']}',
+                            style: TextStyle(
+                              fontSize: SizeConfig.blockSizeHorizontal * 5,
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 );
               },
