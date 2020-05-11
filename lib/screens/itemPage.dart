@@ -233,9 +233,8 @@ class _ItemPageState extends State<ItemPage> {
                               style: mainTextStyle,
                             ),
                             onPressed: () async{
-                              await _fireStore.collection(loggedInUser.user.email).document('cart').setData({'${cart.data.length}' :widget.item[index]},merge : true);
-                              cart = await _fireStore.collection(loggedInUser.user.email).document('cart').get();
-                              print(cart);
+                              await _fireStore.collection(loggedInUser.user.email).document('cart').collection('0').add(widget.item[index]);
+                              cart = await await _fireStore.collection(loggedInUser.user.email).document('cart').collection('0').getDocuments();
                             }))
                   ],
                 ),

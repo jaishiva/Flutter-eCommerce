@@ -13,8 +13,8 @@ const categoryTextStyle =
 const productTextStyle = TextStyle(
   fontSize: 22,
 );
-DocumentSnapshot cart;
-DocumentSnapshot favorite;
+QuerySnapshot cart;
+QuerySnapshot favorite;
 AuthResult loggedInUser;
 class SizeConfig {
   static MediaQueryData _mediaQueryData;

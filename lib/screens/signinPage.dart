@@ -94,8 +94,8 @@ class _SigninPageState extends State<SigninPage> {
                                 loggedInUser = await _auth.signInWithEmailAndPassword(
                                     email: email, password: password);
                                     print(loggedInUser.user);
-                               cart = await _fireStore.collection(email).document('cart').get();
-                               favorite = await _fireStore.collection(email).document('favorite').get();
+                               cart = await _fireStore.collection(email).document('cart').collection('0').getDocuments();
+                               favorite = await _fireStore.collection(email).document('favorite').collection('0').getDocuments();
                                 setState(() {
                                   spinner = false;
                                 });

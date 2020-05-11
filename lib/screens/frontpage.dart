@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_commerce/screens/cartPage.dart';
+import 'package:e_commerce/screens/favoritePage.dart';
 import 'package:e_commerce/widgets/icons.dart';
 import 'package:flutter/material.dart';
 import 'package:e_commerce/constants.dart';
@@ -56,8 +58,7 @@ class _FrontpageState extends State<Frontpage> {
           body: selectedIndex == 0
               ? ProductView(
                   spinnerProvider: spinnerProvider, firestore: _firestore)
-              : selectedIndex == 1 ? FavoriteView(spinnerProvider: spinnerProvider,
-               firestore: _firestore) : CartView(spinnerProvider: spinnerProvider, firestore: _firestore),
+              : selectedIndex == 1 ? FavoritePage() : CartPage(),
           bottomNavigationBar: BottomNavigationBar(
               iconSize: SizeConfig.blockSizeHorizontal * 7,
               backgroundColor: backgroundColor,
@@ -186,37 +187,6 @@ class ProductView extends StatelessWidget {
   }
 }
 
-class FavoriteView extends StatelessWidget {
-  const FavoriteView({
-    Key key,
-    @required this.spinnerProvider,
-    @required Firestore firestore,
-  })  : _firestore = firestore,
-        super(key: key);
-
-  final SpinnerProvider spinnerProvider;
-  final Firestore _firestore;
 
 
 
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
-
-class CartView extends StatelessWidget {
-    const CartView({
-    Key key,
-    @required this.spinnerProvider,
-    @required Firestore firestore,
-  })  : _firestore = firestore,
-        super(key: key);
-
-  final SpinnerProvider spinnerProvider;
-  final Firestore _firestore;
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}

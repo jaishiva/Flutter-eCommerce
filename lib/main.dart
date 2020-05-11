@@ -16,7 +16,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool showSpinner = true;
-  final Firestore _firestore = Firestore.instance;
+  final Firestore _fireStore = Firestore.instance;
   @override
   void initState() {
     super.initState();
@@ -24,7 +24,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void getItemsData() async{
-    chairListData = await _firestore.collection('chairs').getDocuments();
+    chairListData = await _fireStore.collection('chairs').getDocuments();
     setState(() {
       showSpinner = false;
     });
