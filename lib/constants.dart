@@ -15,7 +15,7 @@ const productTextStyle = TextStyle(
 );
 QuerySnapshot cart;
 QuerySnapshot favorite;
-AuthResult loggedInUser;
+var loggedInUser;
 class SizeConfig {
   static MediaQueryData _mediaQueryData;
   static double screenWidth;

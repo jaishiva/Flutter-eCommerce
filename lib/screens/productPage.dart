@@ -5,13 +5,22 @@ import 'package:e_commerce/constants.dart';
 import 'package:page_view_indicator/page_view_indicator.dart';
 import 'itemPage.dart';
 
-class ProductPage extends StatelessWidget {
+class ProductPage extends StatefulWidget {
   ProductPage({this.category});
 
+  final QuerySnapshot category;
+
+  @override
+  _ProductPageState createState() => _ProductPageState();
+}
+
+class _ProductPageState extends State<ProductPage> with SingleTickerProviderStateMixin{
+AnimationController animationController;
+final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
   PageViewIndicator pageIndicator() {
     return PageViewIndicator(
       pageIndexNotifier: pageIndexNotifier,
-      length: category.documents.length,
+      length: widget.category.docs.length,
       normalBuilder: (animationController, index) => Circle(
         size: 8.0,
         color: Colors.white38,
@@ -30,10 +39,29 @@ class ProductPage extends StatelessWidget {
   }
 
   final pageIndexNotifier = ValueNotifier<int>(0);
-  final QuerySnapshot category;
+
   var categoryList;
+
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    animationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 2)
+    );
+  }
+@override
+  void dispose() {
+    // TODO: implement dispose
+    animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    animationController.value = 0;
+    print('prodPage');
     SizeConfig().init(context);
     return Container(
       child: Column(
@@ -62,15 +90,34 @@ class ProductPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                              '⭐️${category.documents[index].data['0']['rating']}'),
-                          Icon(FontAwesomeIcons.heart)
+                              '⭐️${widget.category.docs[index].data()['0']['rating']}'),
+                         AnimatedBuilder(
+                           child: GestureDetector(
+                             onTap: () async{
+                               if(loggedInUser != null){animationController.repeat();
+                               await _fireStore.collection(loggedInUser.user.email).doc('favorite').collection('0').add({'ref' : widget.category.docs[index].reference.path,'index' : 0});
+                              favorite = await _fireStore.collection(loggedInUser.user.email).doc('favorite').collection('0').get();
+                              animationController.value = 1;
+                              animationController.stop();}
+                             },
+                             child: Icon(FontAwesomeIcons.heart,)
+                            ),
+                           animation: animationController, 
+                           builder: (context,child){
+                             return Transform(origin: Offset(15, 15),
+                               transform: Matrix4.rotationY(animationController.value*6),
+                               child: child,
+                             );
+                           }
+                           )
+                          
                         ],
                       ),
                       GestureDetector(
                         onTap: () => Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
                           return ItemPage(
-                            item: category.documents[index].data,
+                            item: widget.category.docs[index],
                           );
                         })),
                         child: Padding(
@@ -78,7 +125,7 @@ class ProductPage extends StatelessWidget {
                           child: Hero(
                               tag: '1',
                               child: Image.network(
-                                "${category.documents[index].data['0']['image']}",
+                                "${widget.category.docs[index].data()['0']['image']}",
                                 scale: SizeConfig.safeBlockHorizontal / 3,
                               )),
                         ),
@@ -87,7 +134,7 @@ class ProductPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            '${category.documents[index].data['0']['name']}\n\$ ${category.documents[index].data['0']['price']}',
+                            '${widget.category.docs[index].data()['0']['name']}\n\$ ${widget.category.docs[index].data()['0']['price']}',
                             style: TextStyle(
                               fontSize: SizeConfig.blockSizeHorizontal * 5,
                             ),
@@ -98,7 +145,7 @@ class ProductPage extends StatelessWidget {
                   ),
                 );
               },
-              itemCount: category.documents.length,
+              itemCount: widget.category.docs.length,
               onPageChanged: (index) => pageIndexNotifier.value = index,
             ),
           ),

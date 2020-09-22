@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_commerce/screens/cartPage.dart';
 import 'package:e_commerce/screens/favoritePage.dart';
+import 'package:e_commerce/screens/sidebar.dart';
+import 'package:e_commerce/screens/signinPage.dart';
 import 'package:e_commerce/widgets/icons.dart';
 import 'package:flutter/material.dart';
 import 'package:e_commerce/constants.dart';
@@ -9,22 +11,70 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'productPage.dart';
 import 'package:e_commerce/model/model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class Frontpage extends StatefulWidget {
-  Frontpage({this.callback});
-  final callback;
 
   @override
   _FrontpageState createState() => _FrontpageState();
 }
 
 class _FrontpageState extends State<Frontpage> {
-  Firestore _firestore = Firestore.instance;
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
   int selectedIndex = 0;
   Data provider;
   SpinnerProvider spinnerProvider;
+  ListView drawer;
   bool showSpinner = false;
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+  @override
+  void initState(){
+    super.initState();
+    drawer = ListView(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.account_box),
+                  title: Text('Account'),
+                  onTap: () => Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            ChangeNotifierProvider(
+                                create: (BuildContext context) {
+                                  return SpinnerProvider();
+                                },
+                                child: SigninPage()),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          var begin = 0.0;
+                          var end = 1.0;
+                          var curve = Curves.linear;
+
+                          var tween = Tween(begin: begin, end: end);
+                          var curvedAnimation = CurvedAnimation(
+                            parent: animation,
+                            curve: curve,
+                          );
+
+                          return ScaleTransition(
+                            scale: tween.animate(curvedAnimation),
+                            child: child,
+                          );
+                        }),
+                  ),
+                )
+              ],
+            );
+  }
+  
+void toggleSideBar(){
+  if(ScaffoldState().isDrawerOpen){
+    Navigator.pop(context);
+  }
+  else{
+    _scaffoldKey.currentState.openDrawer();
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     print('build');
@@ -36,11 +86,25 @@ class _FrontpageState extends State<Frontpage> {
       builder: (context, spin, child) => ModalProgressHUD(
         inAsyncCall: spin.showSpinner,
         child: Scaffold(
+          key: _scaffoldKey,
+          drawer: Drawer(
+            elevation: 5,
+
+            child: Container(
+              width: 50,
+              child: sideBar(),
+            ),
+          ) ,
           appBar: AppBar(
             elevation: 0,
             backgroundColor: backgroundColor,
             leading: GestureDetector(
-                onTap: widget.callback,
+                onTap: (){
+                  setState(() {
+                    toggleSideBar();
+                  });
+                  
+                },//widget.callback,
                 child: Icon(
                   Icons.filter_list,
                   size: 40,
@@ -94,12 +158,12 @@ class ProductView extends StatelessWidget {
   const ProductView({
     Key key,
     @required this.spinnerProvider,
-    @required Firestore firestore,
+    @required FirebaseFirestore firestore,
   })  : _firestore = firestore,
         super(key: key);
 
   final SpinnerProvider spinnerProvider;
-  final Firestore _firestore;
+  final FirebaseFirestore _firestore;
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +190,7 @@ class ProductView extends StatelessWidget {
                   onPressed: () async {
                     spinnerProvider.toggleSpinner();
                     chairListData ??=
-                        await _firestore.collection('chairs').getDocuments();
+                        await _firestore.collection('chairs').get();
                     spinnerProvider.toggleSpinner();
                     data.setButtons(true, false, false, false, chairListData);
                   },
@@ -140,7 +204,7 @@ class ProductView extends StatelessWidget {
                   onPressed: () async {
                     spinnerProvider.toggleSpinner();
                     tableListData ??=
-                        await _firestore.collection('tables').getDocuments();
+                        await _firestore.collection('tables').get();
                     spinnerProvider.toggleSpinner();
                     data.setButtons(false, true, false, false, tableListData);
                   },
@@ -154,7 +218,7 @@ class ProductView extends StatelessWidget {
                   onPressed: () async {
                     spinnerProvider.toggleSpinner();
                     chairListData ??=
-                        await _firestore.collection('chairs').getDocuments();
+                        await _firestore.collection('chairs').get();
                     spinnerProvider.toggleSpinner();
                     data.setButtons(false, false, true, false, chairListData);
                   },
@@ -168,7 +232,7 @@ class ProductView extends StatelessWidget {
                   onPressed: () async {
                     spinnerProvider.toggleSpinner();
                     tableListData ??=
-                        await _firestore.collection('tables').getDocuments();
+                        await _firestore.collection('tables').get();
                     spinnerProvider.toggleSpinner();
                     data.setButtons(false, false, false, true, tableListData);
                   },

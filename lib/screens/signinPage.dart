@@ -24,7 +24,7 @@ class _SigninPageState extends State<SigninPage> {
   String password;
   bool spinner = false;
   final _auth = FirebaseAuth.instance;
-  final _fireStore = Firestore.instance;
+  final _fireStore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -94,8 +94,8 @@ class _SigninPageState extends State<SigninPage> {
                                 loggedInUser = await _auth.signInWithEmailAndPassword(
                                     email: email, password: password);
                                     print(loggedInUser.user);
-                               cart = await _fireStore.collection(email).document('cart').collection('0').getDocuments();
-                               favorite = await _fireStore.collection(email).document('favorite').collection('0').getDocuments();
+                               cart = await _fireStore.collection(email).doc('cart').collection('0').get();
+                               favorite = await _fireStore.collection(email).doc('favorite').collection('0').get();
                                 setState(() {
                                   spinner = false;
                                 });
@@ -154,8 +154,8 @@ class _SigninPageState extends State<SigninPage> {
                               try {
                                loggedInUser =  await _auth.createUserWithEmailAndPassword(
                                     email: email, password: password);
-                              _fireStore.collection(email).document('cart').setData({});
-                              _fireStore.collection(email).document('favorite').setData({});
+                              _fireStore.collection(email).doc('cart').set({});
+                              _fireStore.collection(email).doc('favorite').set({});
                                 await showCupertinoModalPopup(
                                     context: context,
                                     builder: (context) {

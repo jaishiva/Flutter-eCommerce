@@ -10,26 +10,38 @@ import 'package:provider/provider.dart';
 
 class ItemPage extends StatefulWidget {
   ItemPage({this.item, this.index = '0'});
-  final Map item;
+  final DocumentSnapshot item;
   final String index;
   @override
   _ItemPageState createState() => _ItemPageState();
 }
 
-class _ItemPageState extends State<ItemPage> {
+class _ItemPageState extends State<ItemPage>
+    with SingleTickerProviderStateMixin {
   List<bool> isSelected;
+  AnimationController animationController;
   String index;
   int quantity = 1;
-  Firestore _fireStore = Firestore.instance;
+  Map<String, dynamic> item;
+  FirebaseFirestore _fireStore = FirebaseFirestore.instance;
   @override
   void initState() {
     super.initState();
-    print(widget.item.length);
+    item = widget.item.data();
+    print(item.length);
     index = widget.index;
-    isSelected = itemPageButtons(item: widget.item).init();
+    isSelected = itemPageButtons(item: item).init();
     print(isSelected.length);
+    animationController =
+        AnimationController(vsync: this, duration: Duration(seconds: 2));
   }
 
+@override
+  void dispose() {
+    // TODO: implement dispose
+    animationController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -44,8 +56,55 @@ class _ItemPageState extends State<ItemPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CustomButtonsAppBar(icon: Icons.arrow_back_ios,),
-                  CustomButtonsAppBar(icon: FontAwesomeIcons.heart,)
+                  CustomButtonsAppBar(
+                    icon: Icons.arrow_back_ios,
+                  ),
+                  AnimatedBuilder(
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (loggedInUser != null) {
+                            animationController.repeat();
+                            await _fireStore
+                                .collection(loggedInUser.user.email)
+                                .doc('favorite')
+                                .collection('0')
+                                .add({
+                              'ref': widget.item.reference.path,
+                              'index': index
+                            });
+                            favorite = await _fireStore
+                                .collection(loggedInUser.user.email)
+                                .doc('favorite')
+                                .collection('0')
+                                .get();
+                            animationController.value = 1;
+                            animationController.stop();
+                          }
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.all(15),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(9)),
+                            constraints:
+                                BoxConstraints(minWidth: 40, minHeight: 40),
+                            child: Icon(
+                              FontAwesomeIcons.heart,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                      animation: animationController,
+                      builder: (context, child) {
+                        return Transform(
+                          origin: Offset(35, 35),
+                          transform:
+                              Matrix4.rotationY(animationController.value * 6),
+                          child: child,
+                        );
+                      })
                 ],
               ),
               Padding(
@@ -53,10 +112,10 @@ class _ItemPageState extends State<ItemPage> {
                 child: Row(
                   children: [
                     Text(
-                      '${widget.item[index]['name']}',
+                      '${widget.item.data()[index]['name']}',
                       style: mainTextStyle,
                     ),
-                    Text('⭐️${widget.item[index]['rating']}'),
+                    Text('⭐️${widget.item.data()[index]['rating']}'),
                   ],
                 ),
               ),
@@ -74,7 +133,7 @@ class _ItemPageState extends State<ItemPage> {
                           style: productTextStyle,
                         ),
                         Text(
-                          '\$${widget.item[index]['price']}',
+                          '\$${widget.item.data()[index]['price']}',
                           style: mainTextStyle,
                         ),
                         SizedBox(
@@ -100,7 +159,8 @@ class _ItemPageState extends State<ItemPage> {
                                       const EdgeInsets.fromLTRB(0, 4, 6, 4),
                                   child: Container(
                                     decoration: BoxDecoration(
-                                        color: Color(int.parse(widget.item[i.toString()]['color'])),
+                                        color: Color(int.parse(widget
+                                            .item.data()[i.toString()]['color'])),
                                         borderRadius: BorderRadius.circular(80),
                                         border: index != i.toString()
                                             ? Border.all(
@@ -117,7 +177,7 @@ class _ItemPageState extends State<ItemPage> {
                               );
                             },
                             scrollDirection: Axis.horizontal,
-                            itemCount: widget.item.length,
+                            itemCount: item.length,
                           ),
                         ),
                         SizedBox(
@@ -139,7 +199,7 @@ class _ItemPageState extends State<ItemPage> {
                         widthFactor: 0.65,
                         child: Hero(
                             tag: '1',
-                            child: Image.network(widget.item[index]['image'])),
+                            child: Image.network(item[index]['image'])),
                       ),
                     )
                   ],
@@ -232,9 +292,21 @@ class _ItemPageState extends State<ItemPage> {
                               'Add to cart',
                               style: mainTextStyle,
                             ),
-                            onPressed: () async{
-                              await _fireStore.collection(loggedInUser.user.email).document('cart').collection('0').add(widget.item[index]);
-                              cart = await await _fireStore.collection(loggedInUser.user.email).document('cart').collection('0').getDocuments();
+                            onPressed: () async {
+                              await _fireStore
+                                  .collection(loggedInUser.user.email)
+                                  .doc('cart')
+                                  .collection('0')
+                                  .add({
+                                'ref': widget.item.reference.path,
+                                'index': index,
+                                'quantity': quantity
+                              });
+                              cart = await _fireStore
+                                  .collection(loggedInUser.user.email)
+                                  .doc('cart')
+                                  .collection('0')
+                                  .get();
                             }))
                   ],
                 ),
@@ -246,5 +318,3 @@ class _ItemPageState extends State<ItemPage> {
     );
   }
 }
-
-

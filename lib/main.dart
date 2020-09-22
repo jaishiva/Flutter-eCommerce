@@ -1,5 +1,8 @@
-import 'package:e_commerce/screens/homepage.dart';
+import 'package:e_commerce/screens/frontpage.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -10,21 +13,27 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
+ 
+
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
   bool showSpinner = true;
-  final Firestore _fireStore = Firestore.instance;
+  
+  FirebaseFirestore _fireStore;
   @override
   void initState() {
     super.initState();
+    
     getItemsData();
   }
 
   void getItemsData() async{
-    chairListData = await _fireStore.collection('chairs').getDocuments();
+     await Firebase.initializeApp();
+    _fireStore = FirebaseFirestore.instance;
+    chairListData = await _fireStore.collection('chairs').get();
     setState(() {
       showSpinner = false;
     });
@@ -32,6 +41,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -39,9 +51,15 @@ class _MyAppState extends State<MyApp> {
         scaffoldBackgroundColor: backgroundColor,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: ModalProgressHUD(
-        inAsyncCall: showSpinner,
-        child: showSpinner? Container():HomePage()
+      home: MultiProvider(
+        providers: [
+                ChangeNotifierProvider(create: (context) => Data(),),
+                ChangeNotifierProvider(create: (context) => SpinnerProvider(),)
+              ],
+              child: ModalProgressHUD(
+            inAsyncCall: showSpinner,
+            child: showSpinner? Container():Frontpage()
+          ),
       ),
     );
   }
