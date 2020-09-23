@@ -76,9 +76,14 @@ class _FavoritePageState extends State<FavoritePage> {
 
   @override
   Widget build(BuildContext context) {
-    return  favorite==null?Center(
+    return  favorite==null?loggedInUser!=null? Center(
                         child: Text(
                           'Favorite List Empty\nAdd items to Favorite',
+                          textAlign: TextAlign.center,
+                        ),
+                      ):Center(
+                        child: Text(
+                          'Login to add items to Favorite',
                           textAlign: TextAlign.center,
                         ),
                       ):ModalProgressHUD(

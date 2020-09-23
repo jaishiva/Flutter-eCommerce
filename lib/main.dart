@@ -13,25 +13,23 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
- 
-
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
   bool showSpinner = true;
-  
+
   FirebaseFirestore _fireStore;
   @override
   void initState() {
     super.initState();
-    
+
     getItemsData();
   }
 
-  void getItemsData() async{
-     await Firebase.initializeApp();
+  void getItemsData() async {
+    await Firebase.initializeApp();
     _fireStore = FirebaseFirestore.instance;
     chairListData = await _fireStore.collection('chairs').get();
     setState(() {
@@ -42,8 +40,8 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-      ]);
+      DeviceOrientation.portraitUp,
+    ]);
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -53,13 +51,16 @@ class _MyAppState extends State<MyApp> {
       ),
       home: MultiProvider(
         providers: [
-                ChangeNotifierProvider(create: (context) => Data(),),
-                ChangeNotifierProvider(create: (context) => SpinnerProvider(),)
-              ],
-              child: ModalProgressHUD(
-            inAsyncCall: showSpinner,
-            child: showSpinner? Container():Frontpage()
+          ChangeNotifierProvider(
+            create: (context) => Data(),
           ),
+          ChangeNotifierProvider(
+            create: (context) => SpinnerProvider(),
+          )
+        ],
+        child: ModalProgressHUD(
+            inAsyncCall: showSpinner,
+            child: showSpinner ? Container() : Frontpage()),
       ),
     );
   }

@@ -16,7 +16,6 @@ class _sideBarState extends State<sideBar> {
     return Scaffold(
       backgroundColor: backgroundColor,
       body: Container(
-        width: 80,
               child: loggedInUser != null
             ? SafeArea(
                 child: Padding(
@@ -48,41 +47,40 @@ class _sideBarState extends State<sideBar> {
                 ),
               )
             : ListView(
-                children: [
-                  ListTile(
-                    leading: Icon(Icons.account_box),
-                    title: Text('Account'),
-                    
-                    onTap: () => Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                          pageBuilder: (context, animation, secondaryAnimation) =>
-                              ChangeNotifierProvider(
-                                  create: (BuildContext context) {
-                                    return SpinnerProvider();
-                                  },
-                                  child: SigninPage()),
-                          transitionsBuilder:
-                              (context, animation, secondaryAnimation, child) {
-                            var begin = 0.0;
-                            var end = 1.0;
-                            var curve = Curves.linear;
+                    children: [
+                      ListTile(
+                        leading: Icon(Icons.account_box),
+                        title: Text('Account',style: productTextStyle,),
+                        onTap: () => Navigator.push(
+            context,
+            PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    ChangeNotifierProvider(
+                        create: (BuildContext context) {
+            return SpinnerProvider();
+                        },
+                        child: SigninPage()),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  var begin = 0.0;
+                  var end = 1.0;
+                  var curve = Curves.linear;
 
-                            var tween = Tween(begin: begin, end: end);
-                            var curvedAnimation = CurvedAnimation(
-                              parent: animation,
-                              curve: curve,
-                            );
+                  var tween = Tween(begin: begin, end: end);
+                  var curvedAnimation = CurvedAnimation(
+                    parent: animation,
+                    curve: curve,
+                  );
 
-                            return ScaleTransition(
-                              scale: tween.animate(curvedAnimation),
-                              child: child,
-                            );
-                          }),
-                    ),
-                  )
-                ],
-              ),
+                  return ScaleTransition(
+                    scale: tween.animate(curvedAnimation),
+                    child: child,
+                  );
+                }),
+                        ),
+                        )
+                    ],
+                  ),
       ),
     );
   }

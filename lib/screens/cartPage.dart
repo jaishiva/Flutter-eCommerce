@@ -13,34 +13,37 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   bool spinner = true;
   double total = 0;
-  FirebaseFirestore _fireStore = FirebaseFirestore.instance;
+  FirebaseFirestore _fireStore;
   List<ListTile> cartItems = [];
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    if(loggedInUser!=null){setCart();}
-    else{
+    if (loggedInUser != null) {
+      setCart();
+    } else {
       spinner = false;
-    };
+    }
+    ;
   }
 
   void setCart() async {
     total = 0;
-    var app = await Firebase.initializeApp();
+    Firebase.initializeApp();
+    _fireStore = FirebaseFirestore.instance;
     cart = await _fireStore
         .collection(loggedInUser.user.email)
         .doc('cart')
         .collection('0')
         .get();
 
-    await Future.forEach(cart.docs, (item) async {
+    await Future.forEach(cart.docs, (QueryDocumentSnapshot item) async {
       var docRef = await _fireStore
-          .doc(item.data['ref'])
+          .doc(item.data()['ref'])
           .get()
-          .then((value) => value.data()[item.data['index']]);
+          .then((value) => value.data()[item.data()['index']]);
       total = total +
-          item.data['quantity'] * double.parse(docRef['price'].toString());
+          item.data()['quantity'] * double.parse(docRef['price'].toString());
       print(total);
       ListTile tempTile = ListTile(
         leading: Image.network(docRef['image']),
@@ -58,12 +61,11 @@ class _CartPageState extends State<CartPage> {
                   .collection('0')
                   .doc(documentID)
                   .delete();
-             
+
               if (this.mounted) {
                 cartItems = [];
                 setCart();
-                setState(() {
-                });
+                setState(() {});
               }
             }),
       );
@@ -79,12 +81,21 @@ class _CartPageState extends State<CartPage> {
 
   @override
   Widget build(BuildContext context) {
-    return  cart==null?Center(
-                        child: Text(
-                          'Cart Empty\nAdd items to Cart',
-                          textAlign: TextAlign.center,
-                        ),
-                      ):ModalProgressHUD(
+    return cart == null
+        ? loggedInUser != null
+            ? Center(
+                child: Text(
+                  'Cart Empty\nAdd items to Cart',
+                  textAlign: TextAlign.center,
+                ),
+              )
+            : Center(
+                child: Text(
+                  'Login to Add items to Cart',
+                  textAlign: TextAlign.center,
+                ),
+              )
+        : ModalProgressHUD(
             color: backgroundColor,
             opacity: 1.0,
             inAsyncCall: spinner,
