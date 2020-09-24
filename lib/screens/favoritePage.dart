@@ -12,31 +12,34 @@ class FavoritePage extends StatefulWidget {
 
 class _FavoritePageState extends State<FavoritePage> {
   bool spinner = true;
-  FirebaseFirestore _fireStore = FirebaseFirestore.instance;
+  FirebaseFirestore _fireStore;
   List<ListTile> favoriteItems = [];
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    if(loggedInUser!=null){setFav();}
-    else{
+    if (loggedInUser != null) {
+      setFav();
+    } else {
       spinner = false;
-    };
+    }
+    ;
   }
 
   void setFav() async {
-    var app = await Firebase.initializeApp();
+    await Firebase.initializeApp();
+    _fireStore = FirebaseFirestore.instance;
     favorite = await _fireStore
         .collection(loggedInUser.user.email)
         .doc('favorite')
         .collection('0')
         .get();
 
-    await Future.forEach(favorite.docs, (item) async {
+    await Future.forEach(favorite.docs, (QueryDocumentSnapshot item) async {
       var docRef = await _fireStore
-          .doc(item.data['ref'])
+          .doc(item.data()['ref'])
           .get()
-          .then((value) => value.data()["${item.data['index']}"]);
+          .then((value) => value.data()["${item.data()['index']}"]);
       ListTile tempTile = ListTile(
         leading: Image.network(docRef['image']),
         title: Text(docRef['name']),
@@ -46,7 +49,7 @@ class _FavoritePageState extends State<FavoritePage> {
               setState(() {
                 spinner = true;
               });
-              var documentID = item.documentID;
+              var documentID = item.id;
               await _fireStore
                   .collection(loggedInUser.user.email)
                   .doc('favorite')
@@ -57,10 +60,7 @@ class _FavoritePageState extends State<FavoritePage> {
               if (this.mounted) {
                 favoriteItems = [];
                 setFav();
-                setState(() {
-                  
-                });
-
+                setState(() {});
               }
             }),
       );
@@ -76,17 +76,21 @@ class _FavoritePageState extends State<FavoritePage> {
 
   @override
   Widget build(BuildContext context) {
-    return  favorite==null?loggedInUser!=null? Center(
-                        child: Text(
-                          'Favorite List Empty\nAdd items to Favorite',
-                          textAlign: TextAlign.center,
-                        ),
-                      ):Center(
-                        child: Text(
-                          'Login to add items to Favorite',
-                          textAlign: TextAlign.center,
-                        ),
-                      ):ModalProgressHUD(
+    return favorite == null
+        ? loggedInUser != null
+            ? Center(
+                child: Text(
+                  'Favorite List Empty\nAdd items to Favorite',
+                  textAlign: TextAlign.center,
+                ),
+              )
+            : Center(
+                child: Text(
+                  'Login to add items to Favorite',
+                  textAlign: TextAlign.center,
+                ),
+              )
+        : ModalProgressHUD(
             color: backgroundColor,
             opacity: 1,
             inAsyncCall: spinner,
@@ -105,7 +109,8 @@ class _FavoritePageState extends State<FavoritePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                              flex: 7, child: ListView(children: favoriteItems)),
+                              flex: 7,
+                              child: ListView(children: favoriteItems)),
                         ],
                       ),
           );
